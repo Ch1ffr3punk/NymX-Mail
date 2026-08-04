@@ -1,0 +1,14 @@
+[package]
+name = "nymx-mail-server"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ch1ffr3punk"]
+description = "NymX Mail Server"
+
+[dependencies]
+nym-sdk = "1.21.4"
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+ripemd = "0.1"
+hex = "0.4"
+filetime = "0.2"

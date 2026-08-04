@@ -1,0 +1,12 @@
+{
+  "aliases": {
+    "alice": "5UPv7LUF99BBqaaRPdF7oGcFHpWVQo6vxyVG96P199fN.Fdsh1ePFcgVth9PY7mW7JP6apmKUufr7gm3hiPrWctcx@5LzEDQAhEoaBJxEe3yhZxXyh3ybuqDHN7BxMRBAo3NR7",
+    "bob": "5UPv7LUF99BBqaaRPdF7oGcFHpWVQo6vxyVG96P199fN.Fdsh1ePFcgVth9PY7mW7JP6apmKUufr7gm3hiPrWctcx@5LzEDQAhEoaBJxEe3yhZxXyh3ybuqDHN7BxMRBAo3NR7",
+    "carol": "5UPv7LUF99BBqaaRPdF7oGcFHpWVQo6vxyVG96P199fN.Fdsh1ePFcgVth9PY7mW7JP6apmKUufr7gm3hiPrWctcx@5LzEDQAhEoaBJxEe3yhZxXyh3ybuqDHN7BxMRBAo3NR7"
+  },
+  "ssh": {
+    "host": "xxx.xxx.xxx.xxx",
+    "port": 22,
+    "username": "nymx"
+  }
+}
