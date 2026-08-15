@@ -1,7 +1,6 @@
 use crate::config::NymXConfig;
 use crate::ssh::connect_ssh;
 use crate::TaskMessage;
-use filetime::{set_file_times, FileTime};
 use ssh2::Session;
 use std::collections::HashSet;
 use std::io::{Read, Write};
@@ -9,6 +8,12 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::sleep;
+
+#[cfg(not(target_os = "windows"))]
+use filetime::{set_file_times, FileTime};
+
+#[cfg(target_os = "windows")]
+use filetime_creation::set_file_times;
 
 macro_rules! gui_log {
     ($tx:expr, $($arg:tt)*) => {
@@ -169,6 +174,10 @@ async fn download_file(
     let remote_full = format!("{}/{}", remote_path, filename);
     let local_path = local_dir.join(filename);
 
+    if local_path.exists() {
+        std::fs::remove_file(&local_path)?;
+    }
+
     let (mut channel, _) = session.scp_recv(Path::new(&remote_full))?;
     {
         let mut local_file = std::fs::File::create(&local_path)?;
@@ -187,7 +196,18 @@ async fn download_file(
     channel.close()?;
     channel.wait_close()?;
 
-    let epoch_time = FileTime::from_unix_time(0, 0);
-    set_file_times(&local_path, epoch_time, epoch_time)?;
+    let epoch = filetime::FileTime::from_unix_time(0, 0);
+
+    #[cfg(target_os = "windows")]
+    {
+        // Setzt Zugriff, Änderung UND Erstellung auf 1970-01-01
+        set_file_times(&local_path, epoch, epoch, epoch)?;
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        filetime::set_file_times(&local_path, epoch, epoch)?;
+    }
+
     Ok(())
 }
