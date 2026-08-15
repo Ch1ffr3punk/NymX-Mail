@@ -20,6 +20,7 @@ rfd = "0.14"
 open = "5.0"
 image = "0.25"
 filetime = "0.2"
+filetime_creation = "0.2"
 
 [build-dependencies]
 winres = "0.1"
