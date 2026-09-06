@@ -28,6 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if cli.receive {
+        let _ = systemd::daemon::notify(false, [("READY", "1")].iter());
         receive::receive_mode(None).await?;
     } else {
         println!("Usage:");

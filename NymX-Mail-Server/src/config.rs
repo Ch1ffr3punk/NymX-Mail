@@ -75,7 +75,7 @@ pub async fn init_client(gateway: &str) -> Result<(), Box<dyn std::error::Error>
     Ok(())
 }
 
-fn stamp_dir_recursive_epoch(dir: &std::path::Path) {
+pub fn stamp_dir_recursive_epoch(dir: &std::path::Path) {
     set_epoch_times(dir);
     if let Ok(entries) = std::fs::read_dir(dir) {
         for entry in entries.flatten() {

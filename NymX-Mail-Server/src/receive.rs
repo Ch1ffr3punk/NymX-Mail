@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tokio::signal;
-use crate::config::{create_dir_all_epoch, set_epoch_times};
+use crate::config::{create_dir_all_epoch, set_epoch_times, stamp_dir_recursive_epoch};
 
 const APP_TAG_LEN: usize = 22;
 const TRANSFER_TIMEOUT_SECS: u64 = 600;
@@ -17,6 +17,7 @@ const RESEND_INACTIVITY_SECS: u64 = 45;
 const RESEND_CHECK_INTERVAL_SECS: u64 = 90;
 const MAX_RESEND_ATTEMPTS: usize = 3;
 const RECONNECT_DELAY_SECS: u64 = 5;
+const MAX_FILE_SIZE: u64 = 64 * 1024;
 
 struct FileTransfer {
     filename: String,
@@ -34,6 +35,9 @@ struct FileTransfer {
 
 impl FileTransfer {
     fn new(filename: String, app_tag: String, total_chunks: usize, original_file_size: u64, receive_path: &PathBuf) -> io::Result<Self> {
+        if original_file_size > MAX_FILE_SIZE {
+            return Err(io::Error::new(io::ErrorKind::Other, "File too large"));
+        }
         let target_path = receive_path.join(&filename);
         let target_file = OpenOptions::new()
             .write(true)
@@ -63,7 +67,13 @@ impl FileTransfer {
         self.target_file.seek(SeekFrom::Start(offset))?;
         self.target_file.write_all(chunk_data)?;
         self.target_file.sync_data()?;
+
         set_epoch_times(&self.target_path);
+
+        if let Some(parent) = self.target_path.parent() {
+            set_epoch_times(parent);
+        }
+
         self.received_chunks.insert(chunk_idx);
         self.last_activity = Instant::now();
         Ok(())
@@ -108,6 +118,26 @@ pub async fn receive_mode(
     if !storage_dir.exists() {
         return Err("No storage directory found. Please run --init --gateway <identity-key> first.".into());
     }
+
+    let receive_path_clone = receive_path.clone();
+    let storage_dir_clone = storage_dir.clone();
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(Duration::from_secs(300));
+        loop {
+            interval.tick().await;
+            stamp_dir_recursive_epoch(&receive_path_clone);
+            stamp_dir_recursive_epoch(&storage_dir_clone);
+        }
+    });
+
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(Duration::from_secs(60));
+        loop {
+            interval.tick().await;
+            let _ = systemd::daemon::notify(false, [("WATCHDOG", "1")].iter());
+        }
+    });
+
     let paths = StoragePaths::new_from_dir(storage_dir.to_str().unwrap()).unwrap();
 
     loop {
@@ -137,6 +167,7 @@ pub async fn receive_mode(
 
         let transfers: Arc<Mutex<HashMap<String, FileTransfer>>> = Arc::new(Mutex::new(HashMap::new()));
         let completed_transfers: Arc<Mutex<HashSet<String>>> = Arc::new(Mutex::new(HashSet::new()));
+        let rejected_transfers: Arc<Mutex<HashSet<String>>> = Arc::new(Mutex::new(HashSet::new()));
 
         let connection_lost = loop {
             tokio::select! {
@@ -160,6 +191,19 @@ pub async fn receive_mode(
                             Ok(parsed) => parsed,
                             Err(_) => continue,
                         };
+
+                        if file_size > MAX_FILE_SIZE {
+                            let mut rejected = rejected_transfers.lock().unwrap();
+                            rejected.insert(app_tag.clone());
+                            continue;
+                        }
+
+                        {
+                            let rejected = rejected_transfers.lock().unwrap();
+                            if rejected.contains(&app_tag) {
+                                continue;
+                            }
+                        }
 
                         if chunk_idx == HANDSHAKE_CHUNK_IDX as usize {
                             if let Some(sender_tag) = &message.sender_tag {
@@ -219,7 +263,6 @@ pub async fn receive_mode(
                             transfer.target_file.sync_all()?;
                             transfers_lock.remove(&app_tag);
 
-                            // Ensure final file has Unix-Epoch timestamps
                             set_epoch_times(&final_path);
 
                             let mut completed_lock = completed_transfers.lock().unwrap();
