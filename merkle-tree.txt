@@ -1,0 +1,22 @@
+--- FILE HASHES (RIPEMD-160) ---
+LICENSE: 304c26c26e8af4d60f1e0818baa73f8ac9b511fd
+NymX-Mail-Server\Cargo.toml: baa93bafccfc7dde5317d1d6fe2de94d38ae19d1
+NymX-Mail-Server\src\config.rs: 81d4a9886f52d6c15833a6db60476242c21ba45d
+NymX-Mail-Server\src\main.rs: ba6cfd33582f1c9115a83c93a4175eac8bdaf7c7
+NymX-Mail-Server\src\receive.rs: 4e463baa1c9d03ab8d54122a7a0ce0f44a2d9f24
+NymX-Mail\Cargo.toml: befdc8792ac5ea352c99b826addbd9176d63fc43
+NymX-Mail\assets\icon.ico: ddb2c9ae9409267426cbbd1cb464a6b6cc51543c
+NymX-Mail\assets\icon.png: 666aaa168a455fc9df7a660dd8210775c4ae9698
+NymX-Mail\build.rs: 79d5081b24be3b6c2800fae74848f7e28b83de02
+NymX-Mail\nymx-mail.json: 8b815c39eaaa49a722012accc3440e949e81746e
+NymX-Mail\src\config.rs: f43428774f815ced2c23711590917e4cc2dd4c5c
+NymX-Mail\src\get.rs: 155fd8052f53bfe08a2e9b2b117a3fc0f9d2cd4e
+NymX-Mail\src\main.rs: 20ff0a8744f32d712cf9d296adc1048fce55dc39
+NymX-Mail\src\send.rs: a7041244d5902886e2176f2ede93c790b475fe35
+NymX-Mail\src\ssh.rs: 7a0d0999e29e849f19af2859467956b0cff4a838
+README.md: 54df25250e0f40ab8c1ab4883cff6f8866391a9b
+img\1.png: bbfcc56963cd2380023446ec26b42cbaae3c11b1
+systemd.txt: 6b781be7c694f7a9f28127685dd5125b3aedf75d
+
+--- ROOT HASH (RIPEMD-160) ---
+0df571fad7834ec604a50fd08e303ff11a5af935

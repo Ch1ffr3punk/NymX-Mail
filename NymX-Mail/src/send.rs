@@ -34,7 +34,7 @@ pub async fn send_text_message(
         return Ok(());
     }
 
-    gui_log!(log_tx, "Connecting to Nym Mixnet (ephemeral)...");
+    gui_log!(log_tx, "Connecting to Nym Mixnet...");
 
     let mut client = mixnet::MixnetClientBuilder::new_ephemeral()
         .build()
@@ -44,7 +44,7 @@ pub async fn send_text_message(
         .unwrap();
 
     let our_address = client.nym_address();
-    gui_log!(log_tx, "Your Nym address: {}", our_address);
+    gui_log!(log_tx, "Your ephemeral Nym address: {}", our_address);
     gui_log!(log_tx, "Sending anonymously to: {}", address);
 
     let file_size_bytes = data.len() as u64;

@@ -200,6 +200,7 @@ async fn download_file(
 
     #[cfg(target_os = "windows")]
     {
+        // Setzt Zugriff, Änderung UND Erstellung auf 1970-01-01
         set_file_times(&local_path, epoch, epoch, epoch)?;
     }
 

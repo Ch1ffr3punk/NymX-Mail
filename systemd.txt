@@ -1,0 +1,35 @@
+
+# 1. create service file as root
+nano /etc/systemd/system/nymx-mail-server.service
+
+Content:
+
+[Unit]
+Description=NymX Mail Server
+After=network.target
+
+[Service]
+Type=notify
+NotifyAccess=all
+WatchdogSec=120s
+Restart=on-failure
+RestartSec=10s
+User=nymx
+Group=nymx
+WorkingDirectory=/home/nymx
+ExecStart=/home/nymx/nymx-mail-server -r
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+
+Press CTRL-O
+Press CTRL-X
+
+# 2. reload and start
+systemctl daemon-reload
+systemctl enable --now nymx-mail-server.service
+
+# 3. check
+systemctl status nymx-mail-server.service
